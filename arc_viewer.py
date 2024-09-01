@@ -168,16 +168,18 @@ def plot_grid_with_labels(ax, grid, title)-> None:
     cmap = mcolors.ListedColormap([color_map[i] for i in range(10)])
     norm = mcolors.BoundaryNorm(range(11), cmap.N)
     #display grid image, including title and axes, with matplotlib
-    ax.imshow(grid, cmap=cmap, norm=norm, interpolation="nearest")
+    #note attempt to display each coordinate of data in its own separate grid cell
+    ax.imshow(grid, cmap=cmap, norm=norm, interpolation="nearest", origin='upper')
     ax.set_title(title)
     ax.set_xticks(range(len(grid[0])))
     ax.set_yticks(range(len(grid)))
     ax.set_xticklabels([str(i + 1) for i in range(len(grid[0]))])
     ax.set_yticklabels([str(i + 1) for i in range(len(grid))])
-    ax.grid(which='both', color='gray', linestyle='-', linewidth=1)
-    ax.set_xticks([x - 0.5 for x in range(1, len(grid[0]))], minor=True)
-    ax.set_yticks([y - 0.5 for y in range(1, len(grid))], minor=True)
-    ax.grid(which='minor', color='gray', linestyle='-', linewidth=1)
+    for x in range(len(grid[0]) + 1):
+        ax.axvline(x - 0.5, color='white', linewidth=2)
+    for y in range(len(grid) + 1):
+        ax.axhline(y - 0.5, color='white', linewidth=2)
+    ax.tick_params(axis='both', which='both', length=0)
 
 
 def display_example(example, example_idx)-> None:
@@ -210,19 +212,23 @@ def display_example(example, example_idx)-> None:
         for idx, task in enumerate(example['train']):
             input_grid = task['input']
             output_grid = task['output']
+            #terminal display
+            display_grid(input_grid, f"PROBLEM {example_idx}: Training (i.e. example) Input Grid #{idx + 1}")
+            display_grid(output_grid, f"PROBLEM {example_idx}: Training (i.e., example solution) Output Grid #{idx + 1}")
             #matplotlib display
             _, axes = plt.subplots(1, 2, figsize=(8, 4))
             plot_grid_with_labels(axes[0], input_grid, f"Training Example #{idx + 1}")
             plot_grid_with_labels(axes[1], output_grid, f"Solution #{idx + 1}")
             plt.show()
-            #terminal display
-            display_grid(input_grid, f"PROBLEM {example_idx}: Training (i.e. example) Input Grid #{idx + 1}")
-            display_grid(output_grid, f"PROBLEM {example_idx}: Training (i.e., example solution) Output Grid #{idx + 1}")
+
 
     #now display the text example by itself, and then with its solution
     if 'test' in example and len(example['test']) > 0:  #make sure there is a valid 'test' key
         first_test_input = example['test'][0]['input']
         first_test_output = example['test'][0]['output']
+        #terminal display of the test example and solution
+        display_grid(first_test_input, f"PROBLEM {example_idx}:Test Input Grid #1")
+        display_grid(first_test_output, f"PROBLEM {example_idx}:Test Output Grid #1")
         #matplotlib display of test grid
         _, ax = plt.subplots(figsize=(4, 4)) #size for one grid
         plot_grid_with_labels(ax, first_test_input, "Solve This (Test Example #1)")
@@ -232,9 +238,6 @@ def display_example(example, example_idx)-> None:
         plot_grid_with_labels(axes[0], first_test_input, "Solve This (Test Example #1)")
         plot_grid_with_labels(axes[1], first_test_output, "The Solution (Test Example #1)")
         plt.show()
-        #terminal display of the test example and solution
-        display_grid(first_test_input, f"PROBLEM {example_idx}:Test Input Grid #1")
-        display_grid(first_test_output, f"PROBLEM {example_idx}:Test Output Grid #1")
 
 
 def visualize_ARCproblems() -> None:
