@@ -174,6 +174,10 @@ def plot_grid_with_labels(ax, grid, title)-> None:
     ax.set_yticks(range(len(grid)))
     ax.set_xticklabels([str(i + 1) for i in range(len(grid[0]))])
     ax.set_yticklabels([str(i + 1) for i in range(len(grid))])
+    ax.grid(which='both', color='gray', linestyle='-', linewidth=1)
+    ax.set_xticks([x - 0.5 for x in range(1, len(grid[0]))], minor=True)
+    ax.set_yticks([y - 0.5 for y in range(1, len(grid))], minor=True)
+    ax.grid(which='minor', color='gray', linestyle='-', linewidth=1)
 
 
 def display_example(example, example_idx)-> None:
